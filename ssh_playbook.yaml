@@ -1,0 +1,17 @@
+- name: Ensure known_hosts is updated with specified host group keys
+  hosts: localhost
+  vars:
+    host_group: cha5_orig
+  tasks:
+    # - name: Delete known_hosts file
+    #   file:
+    #     path: ~/.ssh/known_hosts
+    #     state: absent
+
+    - name: Fetch and add host keys for the specified group
+      shell: >
+        {% for host in groups[host_group] %}
+        ssh-keyscan -p {{ hostvars[host].ansible_port | default('22') }} -H {{ hostvars[host].ansible_host | default(host) }} >> ~/.ssh/known_hosts
+        {% endfor %}
+      args:
+        executable: /bin/bash
